@@ -1,167 +1,134 @@
-# Projeto MaxMin Select
+# Projeto MaxMinSelect
 
-O **MaxMin Select** é um projeto desenvolvido para implementar e analisar o algoritmo de **seleção simultânea do maior e do menor elemento** de uma sequência numérica, utilizando a técnica de **divisão e conquista**.  
+O **MaxMinSelect** é um projeto desenvolvido para aplicar conceitos de **Análise de Complexidade de Algoritmos**, especificamente com foco em algoritmos **recursivos de divisão e conquista**. O objetivo é encontrar o **mínimo e o máximo** de uma sequência numérica utilizando a abordagem de **recursividade binária**.
 
-Este projeto foi desenvolvido como parte da disciplina **Fundamentos de Projeto e Análise de Algoritmos**.
+## Estrutura do Projeto
 
----
-
-## Conceito do Algoritmo
-
-O algoritmo **MaxMin Select** tem como objetivo encontrar, de forma eficiente, o **menor** e o **maior** elemento de uma lista de números.  
-
-- A abordagem **ingênua** realiza `2n - 2` comparações para uma lista de tamanho `n`.  
-- Já o **MaxMin Select**, usando divisão e conquista, reduz esse número para aproximadamente **3n/2 - 2** comparações, mantendo complexidade linear.
+- `main.py`  
+  Implementa o algoritmo recursivo `maxmin_select`.
+- `test_main.py`  
+  Contém os testes unitários (`unittest`) para validar o comportamento do algoritmo.
+- `README.md`  
+  Documentação do projeto, incluindo explicações sobre a complexidade assintótica e diagramas da execução recursiva.
 
 ---
 
-## Notação Big O
+## Conceitos Fundamentais
 
-A análise assintótica mostra que o **MaxMin Select** pertence à classe de complexidade **O(n)**.  
+Segundo o material da disciplina **Fundamentos de Projeto e Análise de Algoritmos**:
 
-- **O(1)**: Constante → operações independentes do tamanho da entrada.  
-- **O(log n)**: Logarítmica → cresce lentamente mesmo com entradas grandes.  
-- **O(n)**: Linear → operações aumentam proporcionalmente ao tamanho da entrada.  
-- **O(n²)**: Quadrática → cresce rapidamente e se torna impraticável para n grandes.  
-
-O **MaxMin Select** é um exemplo de algoritmo **linear O(n)**, o que o torna eficiente e escalável.
+- **Medição de tempo**: avalia o desempenho do algoritmo em diferentes entradas.  
+- **Complexidade assintótica**: analisa o comportamento do algoritmo quando o tamanho da entrada cresce.  
+- **Notação Big-O**: representa o pior caso do algoritmo.  
+- **Recursividade binária**: estratégia de dividir para conquistar, em que uma função se chama duas vezes em cada etapa (como no MergeSort, QuickSort e MaxMin Select).  
 
 ---
 
-## Complexidade Assintótica
+## Algoritmo MaxMin Select
 
-### Por Contagem de Operações
-- Divide a lista em duas metades.  
-- Resolve recursivamente cada metade.  
-- Combina os resultados em **2 comparações adicionais** (mínimo e máximo).  
+### Descrição
+O algoritmo divide a lista em duas metades, resolve recursivamente cada metade e depois combina os resultados, comparando os mínimos e máximos parciais.  
 
-**Total de comparações:**  
-```
-3n/2 - 2
-```
+- Caso base:  
+  - `n = 1` → 0 comparações  
+  - `n = 2` → 1 comparação  
+- Passo recursivo:  
+  - Divide a sequência em `left = seq[:mid]` e `right = seq[mid:]`  
+  - Combina resultados com **2 comparações adicionais** (`min` e `max`)
 
-**Complexidade final:**  
-```
-O(n)
-```
+### Complexidade
+- Número de comparações: aproximadamente `3n/2 - 2`.  
+- Complexidade assintótica: **O(n)**  
 
 ---
 
-### Pelo Teorema Mestre
-A recorrência do algoritmo é:  
+## Diagramas da Recursão
 
-```
-T(n) = 2T(n/2) + O(1)
+### Fluxo fiel ao código
+```mermaid
+flowchart TD
+    A["maxmin_select(seq[0:n])"] --> B["mid = n // 2
+left = seq[:mid]
+right = seq[mid:]"]
+    B --> C["maxmin_select(left)  |left| = ⌊n/2⌋"]
+    B --> D["maxmin_select(right) |right| = ⌈n/2⌉"]
+
+    %% esquerda
+    C --> Cb["Base?  n==1 → 0 comps
+n==2 → 1 comp"]
+    C --> Crec["Senão: divide de novo (mid = |left| // 2)"]
+
+    %% direita
+    D --> Db["Base?  n==1 → 0 comps
+n==2 → 1 comp"]
+    D --> Drec["Senão: divide de novo (mid = |right| // 2)"]
+
+    Cb --> E["Combina:
+min = min(l.min, r.min)
+max = max(l.max, r.max)
+➜ +2 comparações"]
+    Db --> E
+    Crec --> E
+    Drec --> E
+    E --> F["retorna (mínimo, máximo)"]
 ```
 
-- **a = 2**, **b = 2**, **f(n) = O(1)**  
-- `log_b a = log_2 2 = 1`  
-- Como `f(n) = O(1) = O(n^(p-ε))`, estamos no **Caso 1** do Teorema Mestre.  
+### Árvore de recursão (exemplo n = 8)
+```mermaid
+graph TD
+    subgraph L0["Nível 0 — 1 nó interno → 1×(+2) = 2 comps"]
+    A0["n = 8"]
+    end
 
-**Solução assintótica:**  
+    subgraph L1["Nível 1 — 2 nós internos → 2×(+2) = 4 comps"]
+    A1L["n = 4 (esq)"]
+    A1R["n = 4 (dir)"]
+    end
+
+    subgraph L2["Nível 2 — 4 folhas n=2 → 4×(1) = 4 comps"]
+    A2LL["n = 2"]
+    A2LR["n = 2"]
+    A2RL["n = 2"]
+    A2RR["n = 2"]
+    end
+
+    A0 --> A1L
+    A0 --> A1R
+    A1L --> A2LL
+    A1L --> A2LR
+    A1R --> A2RL
+    A1R --> A2RR
 ```
-T(n) = Θ(n)
-```
+**Total (n=8):** 4 (folhas) + 4 (nível 1) + 2 (nível 0) = **10 comps** = `3n/2 - 2`.
 
 ---
 
 ## Dependências
 
-Este projeto não possui dependências externas. Basta utilizar **Python 3.8+**.
+Este projeto não utiliza bibliotecas externas além da biblioteca padrão do Python.
+
+- Python ≥ 3.10
 
 ---
 
-## Ambiente Virtual
+## Como executar
 
-### Passo 1: Criar e ativar
-```bash
-python -m venv .venv
-```
-- **Linux/Mac:**  
-  ```bash
-  source .venv/bin/activate
-  ```
-- **Windows:**  
-  ```bash
-  .venv\Scripts\activate
-  ```
-
-### Passo 2: Executar
+### Executar o algoritmo diretamente
 ```bash
 python main.py 7 -3 9 2 11 5 -10 4
 ```
 
-Saída esperada:
-```text
-Input: [7, -3, 9, 2, 11, 5, -10, 4]
-Minimum: -10
-Maximum: 11
-Comparisons: 10
+### Rodar os testes
+```bash
+python -m unittest test_main.py
 ```
 
 ---
 
-## Estrutura do Projeto
+## Referências
 
-- **main.py** → implementação do algoritmo MaxMin Select.  
-- **test_maxmin.py** → testes unitários com vários cenários.  
-- **README.md** → documentação, análise de complexidade e instruções de uso.  
-
----
-
-## Explicação das Funções
-
-### Arquivo: `main.py`
-
-#### `maxmin_select(seq)`
-- **Objetivo:** encontra o menor e maior elemento em `seq` com menos comparações.  
-- **Parâmetros:**  
-  - `seq`: sequência de inteiros.  
-- **Retorno:** objeto com `minimum`, `maximum` e `comparisons`.  
-
-**Casos base:**  
-- Lista de 1 elemento → 0 comparações.  
-- Lista de 2 elementos → 1 comparação.  
-
-**Etapa de combinação:**  
-- Compara os mínimos das duas metades.  
-- Compara os máximos das duas metades.  
-- Soma as comparações realizadas.
-
----
-
-## 📈 Diagrama da Recursão (Mermaid)
-
-```mermaid
-flowchart TD
-    A["Entrada: n elementos"] --> B1["Divide em duas metades (n/2)"]
-    B1 --> C1["Resolve sublista esquerda"]
-    B1 --> C2["Resolve sublista direita"]
-    C1 --> D1["Caso base ou nova divisão"]
-    C2 --> D2["Caso base ou nova divisão"]
-    D1 --> E["Combina min/max (2 comparações)"]
-    D2 --> E
-    E --> F["Resultado final: (mínimo, máximo)"]
-```
-
----
-
-## Saída da Execução
-
-Exemplo:
-```text
-Input: [3, 1, 4, 1, 5, 9]
-Minimum: 1
-Maximum: 9
-Comparisons: 7
-```
-
----
-
-## Documentação e Links Úteis
-
-- [Aula 01 – Análise de Complexidade de Algoritmos](https://github.com/joaopauloaramuni/fundamentos-de-projeto-e-analise-de-algoritmos/tree/main/PDF)  
-- Cormen, T. H. *Algoritmos: Teoria e Prática*. 3ª ed. LTC, 2012.  
-- Ziviani, N. *Projeto de Algoritmos*. Cengage Learning, 2007.  
+- Prof. Dr. João Paulo Aramuni — Fundamentos de Projeto e Análise de Algoritmos  
+- Cormen, Leiserson, Rivest, Stein. **Algoritmos: Teoria e Prática**.  
+- Nivio Ziviani. **Projeto de Algoritmos: com implementações em Java e C++**.  
 
 ---
